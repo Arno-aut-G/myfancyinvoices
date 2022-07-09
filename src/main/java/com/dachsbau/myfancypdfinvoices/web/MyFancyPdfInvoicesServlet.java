@@ -3,18 +3,37 @@ package com.dachsbau.myfancypdfinvoices.web;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.dachsbau.myfancypdfinvoices.context.Application;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.dachsbau.myfancypdfinvoices.context.MyFancyInvoicesApplicationConfiguration;
 import com.dachsbau.myfancypdfinvoices.model.Invoice;
 import com.dachsbau.myfancypdfinvoices.service.InvoiceService;
+import com.dachsbau.myfancypdfinvoices.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.dachsbau.myfancypdfinvoices.context.Application.*;
-
 public class MyFancyPdfInvoicesServlet extends HttpServlet {
+
+    private UserService userService;
+    private InvoiceService invoiceService;
+    private ObjectMapper objectMapper;
+
+    @Override
+    public void init() throws ServletException {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+                MyFancyInvoicesApplicationConfiguration.class);
+
+        ctx.registerShutdownHook();
+
+        this.userService = ctx.getBean(UserService.class);
+        this.invoiceService = ctx.getBean(InvoiceService.class);
+        this.objectMapper = ctx.getBean(ObjectMapper.class);
+
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
